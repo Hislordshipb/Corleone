@@ -314,7 +314,7 @@ async def cb_handler(client: Client, query: CallbackQuery):
             await query.answer(url=f"https://t.me/{temp.U_NAME}?start={ident}_{file_id}")
     elif query.data.startswith("checksub"):
         links = await is_subscribed(client, query=query)
-        if AUTH_CHANNEL and len(links) >= 1:
+        if AUTH_CHANNEL and isinstance(links, list) and len(links) > 0:  # User is NOT subscribed
             await query.answer("My Boss Please Join all the Channels pleaseee 🙏", show_alert=True)
             return
 
