@@ -29,43 +29,61 @@ BATCH_FILES = {}
 async def start(client, message):
     if message.chat.type in [enums.ChatType.GROUP, enums.ChatType.SUPERGROUP]:
         buttons = [[
-                    InlineKeyboardButton('♻️ HΞLᎮ', callback_data='help'),
-                    InlineKeyboardButton('💫 ΛBԾUϮ', callback_data='about'),
-                    InlineKeyboardButton('⌬ GRԾUᎮ', url=GRP_LNK)
-                ],[
-                    InlineKeyboardButton('🍿 JԾIN ԾUR UᎮDΛTΞS CHΛNNΞL 🍿', url=CHNL_LNK)
-                  ]]
+            InlineKeyboardButton('♻️ HΞLᎮ', callback_data='help'),
+            InlineKeyboardButton('💫 ΛBԾUϮ', callback_data='about'),
+            InlineKeyboardButton('⌬ GRԾUᎮ', url=GRP_LNK)
+        ], [
+            InlineKeyboardButton('🍿 JԾIN ԾUR UᎮDΛTΞS CHΛNNΞL 🍿', url=CHNL_LNK)
+        ]]
         reply_markup = InlineKeyboardMarkup(buttons)
-        await message.reply(script.START_TXT.format(message.from_user.mention, temp.U_NAME, temp.B_NAME),
+        
+        await message.reply(
+            script.START_TXT.format(message.from_user.mention, temp.U_NAME, temp.B_NAME),
             reply_markup=reply_markup,
             parse_mode=enums.ParseMode.HTML
         )
-        await asyncio.sleep(2) # 😢 https://github.com/EvamariaTG/EvaMaria/blob/master/plugins/p_ttishow.py#L17 😬 wait a bit, before checking.
+        await asyncio.sleep(2)  # 😢 wait a bit before checking
+
         if not await db.get_chat(message.chat.id):
-            total=await client.get_chat_members_count(message.chat.id)
-            await client.send_message(LOG_CHANNEL, script.LOG_TEXT_G.format(message.chat.title, message.chat.id, total, "Unknown"))       
+            total = await client.get_chat_members_count(message.chat.id)
+            await client.send_message(
+                LOG_CHANNEL, 
+                script.LOG_TEXT_G.format(message.chat.title, message.chat.id, total, "Unknown")
+            )       
             await db.add_chat(message.chat.id, message.chat.title)
+        
         return 
+
     if not await db.is_user_exist(message.from_user.id):
         await db.add_user(message.from_user.id, message.from_user.first_name)
-        await client.send_message(LOG_CHANNEL, script.LOG_TEXT_P.format(message.from_user.id, message.from_user.mention))
+        await client.send_message(
+            LOG_CHANNEL, 
+            script.LOG_TEXT_P.format(message.from_user.id, message.from_user.mention)
+        )
+
     if len(message.command) != 2:
         buttons = [[
-                    InlineKeyboardButton('♻️ HΞLᎮ', callback_data='help'),
-                    InlineKeyboardButton('💫 ΛBԾUϮ', callback_data='about'),
-                    InlineKeyboardButton('⌬ GRԾUᎮ', url=GRP_LNK)
-                ],[
-                    InlineKeyboardButton('🍿 JԾIN ԾUR UᎮDΛTΞS CHΛNNΞL 🍿', url=CHNL_LNK)
-                  ]]
+            InlineKeyboardButton('♻️ HΞLᎮ', callback_data='help'),
+            InlineKeyboardButton('💫 ΛBԾUϮ', callback_data='about'),
+            InlineKeyboardButton('⌬ GRԾUᎮ', url=GRP_LNK)
+        ], [
+            InlineKeyboardButton('🍿 JԾIN ԾUR UᎮDΛTΞS CHΛNNΞL 🍿', url=CHNL_LNK)
+        ]]
         reply_markup = InlineKeyboardMarkup(buttons)
-        await message.reply(script.START_TXT.format(message.from_user.mention, temp.U_NAME, temp.B_NAME),
+
+        await message.reply(
+            script.START_TXT.format(message.from_user.mention, temp.U_NAME, temp.B_NAME),
             reply_markup=reply_markup,
             parse_mode=enums.ParseMode.HTML
         )
         return
+
     invite_links = await is_subscribed(client, query=message)
-    if AUTH_CHANNEL and len(invite_links) >= 1:
-        #this is written by tg: @programcrasher
+
+    if invite_links is True:  # User is subscribed
+        pass  # Continue with normal execution (maybe send a welcome message)
+
+    elif isinstance(invite_links, list) and len(invite_links) >= 1:  # User not subscribed, show buttons
         btn = []
         for chnl_num, link in enumerate(invite_links, start=1):
             if chnl_num == 1:
@@ -75,10 +93,12 @@ async def start(client, message):
             elif chnl_num == 3:
                 channel_num = "3ʀᴅ"
             else:
-                channel_num = str(chnl_num)+"ᴛʜ"
+                channel_num = str(chnl_num) + "ᴛʜ"
+
             btn.append([
                 InlineKeyboardButton(f"❆ Jᴏɪɴ {channel_num} Cʜᴀɴɴᴇʟ ❆", url=link)
             ])
+
 
         if message.command[1] != "subscribe":
             try:
