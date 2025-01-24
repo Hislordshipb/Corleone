@@ -52,22 +52,23 @@ async def is_subscribed(bot, query=None, userid=None):
     invite_links = []
     for id in AUTH_CHANNEL:
         try:
-            if userid == None and query != None:
+            if userid is None and query is not None:
                 chat = await bot.get_chat(id)
                 user = await bot.get_chat_member(id, query.from_user.id)
             else:
                 chat = await bot.get_chat(id)
-                user = await bot.get_chat_member(AUTH_CHANNEL, int(userid))
+                user = await bot.get_chat_member(id, int(userid))
         except UserNotParticipant:
-            invite_links.append(chat.invite_link)
+            invite_links.append(chat.invite_link)  # User is not subscribed to this channel
         except Exception as e:
             logger.exception(e)
             continue
         else:
             if user.status != enums.ChatMemberStatus.BANNED:
-                continue
+                continue  # If the user is subscribed to the channel, skip adding this channel to the list
 
-    return invite_links
+    return invite_links if invite_links else False  # Return invite links (the channels user is not subscribed to)
+
 
 async def get_poster(query, bulk=False, id=False, file=None):
     if not id:

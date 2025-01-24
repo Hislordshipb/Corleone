@@ -246,9 +246,10 @@ async def cb_handler(client: Client, query: CallbackQuery):
         if CUSTOM_FILE_CAPTION:
             try: f_caption = CUSTOM_FILE_CAPTION.format(mention=query.from_user.mention, file_name='' if title is None else title, file_size='' if size is None else size, file_caption='' if f_caption is None else f_caption)                                                                                                      
             except Exception as e: logger.exception(e)
-        try:                  
+        try:
             links = await is_subscribed(client, query=query)
-            if AUTH_CHANNEL and not len(links) == 0:
+
+            if AUTH_CHANNEL and isinstance(links, list) and len(links) > 0:  # User is NOT subscribed
                 return await query.answer(url=f"https://t.me/{temp.U_NAME}?start={ident}_{file_id}")
             else:
                 await client.send_cached_media(chat_id=query.from_user.id, file_id=file_id, caption=f_caption, protect_content=True if ident == "pmfilep" else False)                       
@@ -281,7 +282,8 @@ async def cb_handler(client: Client, query: CallbackQuery):
             f_caption = f"{files.file_name}"
 
         try:
-            if AUTH_CHANNEL and not await is_subscribed(client, query):
+            links = await is_subscribed(client, query=query)
+            if AUTH_CHANNEL and isinstance(links, list) and len(links) > 0:  # User is NOT subscribed
                 if clicked == typed:
                     await query.answer(url=f"https://t.me/{temp.U_NAME}?start={ident}_{file_id}")
                     return
@@ -312,7 +314,7 @@ async def cb_handler(client: Client, query: CallbackQuery):
             await query.answer(url=f"https://t.me/{temp.U_NAME}?start={ident}_{file_id}")
     elif query.data.startswith("checksub"):
         links = await is_subscribed(client, query=query)
-        if AUTH_CHANNEL and len(links) >= 1:
+        if AUTH_CHANNEL and isinstance(links, list) and len(links) > 0:  # User is NOT subscribed
             await query.answer("My Boss Please Join all the Channels pleaseee 🙏", show_alert=True)
             return
 
