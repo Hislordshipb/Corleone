@@ -79,11 +79,7 @@ async def start(client, message):
         return
 
     invite_links = await is_subscribed(client, query=message)
-
-    if invite_links is True:  # User is subscribed
-        pass  # Continue with normal execution (maybe send a welcome message)
-
-    elif isinstance(invite_links, list) and len(invite_links) >= 1:  # User not subscribed, show buttons
+    if AUTH_CHANNEL and isinstance(invite_links, list) and len(invite_links) >= 1:
         btn = []
         for chnl_num, link in enumerate(invite_links, start=1):
             if chnl_num == 1:
@@ -93,8 +89,7 @@ async def start(client, message):
             elif chnl_num == 3:
                 channel_num = "3ʀᴅ"
             else:
-                channel_num = str(chnl_num) + "ᴛʜ"
-
+                channel_num = str(chnl_num)+"ᴛʜ"
             btn.append([
                 InlineKeyboardButton(f"❆ Jᴏɪɴ {channel_num} Cʜᴀɴɴᴇʟ ❆", url=link)
             ])
